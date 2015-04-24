@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv='Content-type' content='text/html; charset=utf-8'>
+<title>Touch Friendly Dropdown Menu using React JSX</title>
+<link rel="stylesheet" href="styles/touch-friendly-dropdown.css">
+</head>
+<body>
+<div id="container">
+</div>
+<script src="scripts/library/react.min.js"></script>
+<script src="scripts/library/JSXTransformer.js"></script>
+<script src="scripts/library/react-tappable.js"></script>
+<script type="text/jsx">
+var navigationConfig = [
+	{
+		href: 'https://facebook.github.io/react/index.html',
+		text: 'React',
+		children: [
+			{
+				href: 'https://facebook.github.io/react/docs/getting-started.html',
+				text: 'Getting Started'
+			},
+			{
+				href: 'https://facebook.github.io/react/docs/tutorial.html',
+				text: 'Tutorial'
+			},
+			{
+				href: 'https://facebook.github.io/react/docs/thinking-in-react.html',
+				text: 'Thinking in React'
+			}			
+		]
+	},
+	{
+		text: 'Resources',
+		children: [
+			{
+				href: 'https://facebook.github.io/react/docs/conferences.html',
+				text: 'Conferences'
+			},
+			{
+				href: 'https://facebook.github.io/react/docs/videos.html',
+				text: 'Videos'
+			},
+			{
+				href: 'https://facebook.github.io/react/docs/examples.html',
+				text: 'Examples'
+			}			
+		]
+	},
+	{
+		text: 'Code References',
+		children: [
+			{
+				href: 'http://ryanclark.me/getting-started-with-react/',
+				text: 'Getting Started'
+			},
+			{
+				href: 'https://facebook.github.io/react/docs/component-specs.html',
+				text: 'Clickable Outside'
+			},
+			{
+				href: 'http://google.co.uk',
+				text: 'react-tappable'
+			}
+		]
+	}
+];
+
+var Navigation = React.createClass({
+	getInitialState: function () {
+		return {
+			openDropdown: -1
+		};
+	},
+	getDefaultProps: function () {
+		return {
+			config: []
+		}
+	},
+	componentDidMount: function() {
+		document.addEventListener("click", this.closeDropdown);
+	},
+	componentWillUnmount: function() {
+		document.removeEventListener("click", this.closeDropdown);
+	},		
+	openDropdown: function (id) {
+		this.setState({
+			openDropdown: id
+		});
+	},
+	closeDropdown: function () {
+		this.setState({
+			openDropdown: -1
+		});
+	},
+	propTypes: {
+		config: React.PropTypes.array
+	},
+	render: function () {
+		var config = this.props.config, 
+			container = document.querySelector('ul'),
+			items = config.map(function (item, index) {
+			var children, 
+				dropdown;
+			if (item.children) {
+				children = item.children.map(function (child) {
+					return (
+							<li className="submenu_item">
+								<a className="submenu_link" href={ child.href }>{ child.text }</a>
+							</li>
+					);
+				});
+				var dropdownClass = 'submenu';
+				if (this.state.openDropdown === index) {
+					dropdownClass += ' submenu_active';
+				}
+				dropdown = (
+					<ul className={ dropdownClass }>{ children }</ul>
+				);
+			}
+			return (
+				<li className="menu" onMouseOut={ this.closeDropdown } onMouseOver={ this.openDropdown.bind(this, index) }>
+				<Tappable preventDefault onTap={this.openDropdown.bind(this, index)}>
+					<a className="navigation_link" href={ item.href }> { item.text }</a>
+				</Tappable>
+					{ dropdown }
+				</li>
+			);
+		}, this);
+		return (
+				<ul className="navigation">{ items }</ul>
+		);
+	}
+});
+React.render(<Navigation config={ navigationConfig } />, document.getElementById('container'));	
+</script>
+</body>
+</html>
